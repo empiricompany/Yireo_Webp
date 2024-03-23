@@ -23,7 +23,7 @@ class Yireo_Webp_Helper_File extends Mage_Core_Helper_Abstract
     public function exists($file)
     {
         
-        //issues with Sacchetto-piatto-in-carta-pergamina-(glassine)-misure-varie-SGLASSPERG-22.jpg
+        //issues with special chars in file name
         //$file = $this->stripInvalidCharacters($file);
 
         $validator = new Zend_Validate_File_Exists();
