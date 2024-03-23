@@ -64,48 +64,124 @@ class Yireo_Webp_Model_Observer
         $transport = $observer->getEvent()->getTransport();
         $block = $observer->getEvent()->getBlock();
 
-        if ($this->isAllowedBlock($block) == false) {
+        /* if ($this->isAllowedBlock($block) == false) {
             return $this;
-        }
+        } */
 
         $html = $transport->getHtml();
 
-        if (preg_match_all('/\ src=\"([^\"]+)\.(png|jpg|jpeg)/i', $html, $matches) == false) {
+        if (preg_match_all('/\ (src|srcset)=\"([^\"]+)\.(png|jpg|jpeg)/i', $html, $matches) == false) {
             return $this;
         }
+        //Mage::log(__METHOD__);
+        //$imageList = array();
 
-        $imageList = array();
+        //Mage::log($matches[0]);
+
         foreach ($matches[0] as $index => $match) {
+            switch($matches[1][$index]) {
+                case 'src':
+                    // Convert the URL to a valid path
+                    $imageUrl = $matches[2][$index] . '.' . $matches[3][$index];
+                    //Mage::log($imageUrl);
+                    $webpUrl = $this->convertImageUrlToWebp($imageUrl);
 
-            // Convert the URL to a valid path
-            $imageUrl = $matches[1][$index] . '.' . $matches[2][$index];
-            $webpUrl = $this->convertImageUrlToWebp($imageUrl);
+                    if (empty($webpUrl)) {
+                        //Mage::log('cant convert '.$imageUrl.' to webp');
+                        continue;
+                    }
 
-            if (empty($webpUrl)) {
-                continue;
+                    // Replace the img tag in the HTML
+                    $htmlTag = $matches[0][$index];
+                    //$newHtmlTag = str_replace('src="' . $imageUrl, ' src="' . Mage::getBaseUrl("skin") . 'frontend/default/default/images/webp/placeholder.png" data-img="' . md5($imageUrl), $htmlTag);
+                    $newHtmlTag = str_replace('src="' . $imageUrl, ' src="' . $webpUrl .'" data-originalSrc="' . $imageUrl, $htmlTag);
+                    $html = str_replace($htmlTag, $newHtmlTag, $html);
+                    
+
+                    // Add the images to the return-array
+                    //$imageList[md5($imageUrl)] = array('orig' => $imageUrl, 'webp' => $webpUrl);
+                break;
+                case 'srcset':
+                    //Mage::log("\n - - NEW SRCSET DETECTED ".$match);
+                    $imageUrls = $matches[2][$index] . '.' . $matches[3][$index];
+                    //Mage::log( $imageUrls );
+                    if (preg_match_all('/[^"\'=\s]+\.(jpe?g|png)/mU', $imageUrls, $matches2) == false) {
+                        //Mage::log( 'no match' );
+                        continue;
+                    }
+                    //Mage::log('--- $matches2 ---');
+                    //Mage::log($matches2);
+                    $htmlTag = $matches[0][$index];
+                    //Mage::log('--- $htmlTag ---');
+                    //Mage::log($htmlTag);
+                    foreach($matches2[0] as $index2 => $match2) {
+                        // Convert the URL to a valid path
+                        $imageUrl2 = $match2;
+                        //Mage::log('-- $imageUrl2');
+                        //Mage::log($imageUrl2);
+                        $webpUrl2 = $this->convertImageUrlToWebp($imageUrl2);
+                        if (empty($webpUrl2)) {
+                            //Mage::log('cant convert '.$imageUrl2.' to webp');
+                            continue;
+                        }
+                        //Mage::log('\n$webpUrl = '.$webpUrl2);
+
+                        $newHtmlTag = str_replace($imageUrl2, $webpUrl2, $htmlTag);
+                        //Mage::log('--- $newHtmlTag ---');
+                        //Mage::log($newHtmlTag);
+                        $html = str_replace($htmlTag, $newHtmlTag, $html);
+                        $htmlTag = $newHtmlTag;
+                    }
+
+                    //$html = str_replace($htmlTag, $newHtmlTag, $html);
+                    
+
+                    //Mage::log($matches[3][$index]);
+                    //Mage::log("\n\n-------\n\n");
+                    // Convert the URL to a valid path
+                    // $imageUrl = $matches[2][$index] . '.' . $matches[3][$index];
+                    // $webpUrl = $this->convertImageUrlToWebp($imageUrl);
+
+                    // if (empty($webpUrl)) {
+                    //     //Mage::log('cant convert '.$imageUrl.' to webp');
+                    //     continue;
+                    // }
+
+                    // // Replace the img tag in the HTML
+                    // $htmlTag = $matches[0][$index];
+                    // //$newHtmlTag = str_replace('src="' . $imageUrl, ' src="' . Mage::getBaseUrl("skin") . 'frontend/default/default/images/webp/placeholder.png" data-img="' . md5($imageUrl), $htmlTag);
+                    // $newHtmlTag = str_replace('srcset="' . $imageUrl, ' srcset="' . $webpUrl .'" data-originalSrcSet="' . $imageUrl, $htmlTag);
+                    // $html = str_replace($htmlTag, $newHtmlTag, $html);
+                break;
             }
-
-            // Replace the img tag in the HTML
-            $htmlTag = $matches[0][$index];
-            $newHtmlTag = str_replace('src="' . $imageUrl, ' src="' . Mage::getBaseUrl("skin") . 'frontend/default/default/images/webp/placeholder.png" data-img="' . md5($imageUrl), $htmlTag);
-            $html = str_replace($htmlTag, $newHtmlTag, $html);
-
-            // Add the images to the return-array
-            $imageList[md5($imageUrl)] = array('orig' => $imageUrl, 'webp' => $webpUrl);
         }
 
         // Add a JavaScript-list to the HTML-document
-        if (empty($imageList)) {
-            return $this;
-        }
+        // if (empty($imageList)) {
+        //     return $this;
+        // }
 
-        $newHtml = $this->getScriptHtmlLines($imageList);
+        /*$newHtml = $this->getScriptHtmlLines($imageList);
 
         if ($block->getNameInLayout() == 'root') {
             $newHtml[] = '<script type="text/javascript" src="' . Mage::getBaseUrl('js') . 'webp/jquery.detect.js"></script>';
         }
 
-        $html = $this->addScriptToBody($html, $newHtml);
+        $html = $this->addScriptToBody($html, $newHtml);*/
+        
+        // link preload product image
+        /* $dom = new DOMDocument();
+        $dom->loadHTML($html);
+        $xpath = new DOMXPath($dom);
+        $nodes = $xpath->query('(//img[@id="image-main"])[1]');
+        if ($nodes->length > 0) {
+            $node = $nodes->item(0);
+            $src = sprintf('<link rel="preload" as="image" href="%s" />', $node->getAttribute('src'));
+            $html = str_replace('</head>', $src . '</head>', $html);
+        }  */
+        
+        
+        
         $transport->setHtml($html);
 
         return $this;
@@ -119,12 +195,20 @@ class Yireo_Webp_Model_Observer
     protected function convertImageUrlToWebp($imageUrl)
     {
         $imagePath = $this->getImagePathFromUrl($imageUrl);
-
+        //Mage::log(__METHOD__);
         if (empty($imagePath)) {
+            Mage::log('empty imagepath '.$imagePath);
+            Mage::log('imageurl '.$imageUrl);
+            
             return false;
         }
 
         if ($this->fileHelper->exists($imagePath) == false) {
+            if (strstr($imagePath, 'pergamina')) {
+                Mage::log('file exist '.$imagePath);
+                return false;
+            }
+            //Mage::log('file exist '.$imagePath);
             return false;
         }
 
@@ -132,10 +216,12 @@ class Yireo_Webp_Model_Observer
         $webpPath = $this->helper->convertToWebp($imagePath);
 
         if (empty($webpPath)) {
+            Mage::log('not converted '.$imagePath.' webpPath '.$webpPath);
             return false;
         }
 
         if ($this->fileHelper->exists($webpPath) == false) {
+            Mage::log('webpPath not exist '.$webpPath);
             return false;
         }
 
@@ -143,10 +229,16 @@ class Yireo_Webp_Model_Observer
         $webpUrl = $this->getImageUrlFromPath($webpPath);
 
         if (empty($webpUrl)) {
+            //Mage::log('getImageUrlFromPath empty '.$webpUrl);
             return false;
         }
 
         return $webpUrl;
+    }
+
+    public function getWebpHelper($imageUrl)
+    {
+        return $this->convertImageUrlToWebp($imageUrl) ?: $imageUrl;
     }
 
     /**

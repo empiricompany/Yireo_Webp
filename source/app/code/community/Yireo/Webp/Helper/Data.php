@@ -239,21 +239,25 @@ class Yireo_Webp_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
 
-        if (preg_match('/\.png$/', $imagePath) && function_exists('imagecreatefrompng')) {
-            $image = imagecreatefrompng($imagePath);
-        } elseif (preg_match('/\.gif$/', $imagePath) && function_exists('imagecreatefromgif')) {
-            $image = imagecreatefromgif($imagePath);
-        } elseif (preg_match('/\.(jpg|jpeg)$/', $imagePath) && function_exists('imagecreatefromjpeg')) {
-            $image = imagecreatefromjpeg($imagePath);
-        } else {
-            return false;
-        }
-
         set_error_handler(function() {}, E_WARNING);
-
         try {
+        
+            if (preg_match('/\.png$/', $imagePath) && function_exists('imagecreatefrompng')) {
+                $image = imagecreatefrompng($imagePath);
+            } elseif (preg_match('/\.gif$/', $imagePath) && function_exists('imagecreatefromgif')) {
+                $image = imagecreatefromgif($imagePath);
+            } elseif (preg_match('/\.(jpg|jpeg)$/', $imagePath) && function_exists('imagecreatefromjpeg')) {
+                $image = imagecreatefromjpeg($imagePath);
+            } else {
+                return false;
+            }
+
+            if ($image === false) {
+                return false;
+            }
+
             imagewebp($image, $webpPath);
-        } catch (Exception $e) {
+        } catch (Exception $e) {            
             return false;
         }
 
