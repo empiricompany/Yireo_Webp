@@ -155,32 +155,6 @@ class Yireo_Webp_Model_Observer
                 break;
             }
         }
-
-        // Add a JavaScript-list to the HTML-document
-        // if (empty($imageList)) {
-        //     return $this;
-        // }
-
-        /*$newHtml = $this->getScriptHtmlLines($imageList);
-
-        if ($block->getNameInLayout() == 'root') {
-            $newHtml[] = '<script type="text/javascript" src="' . Mage::getBaseUrl('js') . 'webp/jquery.detect.js"></script>';
-        }
-
-        $html = $this->addScriptToBody($html, $newHtml);*/
-        
-        // link preload product image
-        /* $dom = new DOMDocument();
-        $dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
-        $nodes = $xpath->query('(//img[@id="image-main"])[1]');
-        if ($nodes->length > 0) {
-            $node = $nodes->item(0);
-            $src = sprintf('<link rel="preload" as="image" href="%s" />', $node->getAttribute('src'));
-            $html = str_replace('</head>', $src . '</head>', $html);
-        }  */
-        
-        
         
         $transport->setHtml($html);
 
@@ -242,29 +216,6 @@ class Yireo_Webp_Model_Observer
     }
 
     /**
-     * @param $imageList
-     *
-     * @return array
-     */
-    protected function getScriptHtmlLines($imageList)
-    {
-        $newHtml = array();
-
-        $newHtml[] = '<script>';
-        $newHtml[] = 'var SKIN_URL = \'' . Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN) . '\';';
-        $webpCookie = (int)Mage::app()->getRequest()->getCookie('webp', 0);
-
-        $newHtml[] = 'var WEBP_COOKIE = ' . $webpCookie . ';';
-        $newHtml[] = 'if(webpReplacements == null) { var webpReplacements = new Object(); }';
-        foreach ($imageList as $name => $value) {
-            $newHtml[] = 'webpReplacements[\'' . $name . '\'] = ' . json_encode($value);
-        }
-        $newHtml[] = '</script>';
-
-        return $newHtml;
-    }
-
-    /**
      * @param string $imagePath
      *
      * @return mixed
@@ -296,23 +247,5 @@ class Yireo_Webp_Model_Observer
                 }
             }
         }
-    }
-
-    /**
-     * @param $html
-     * @param $scriptLines
-     *
-     * @return mixed|string
-     */
-    protected function addScriptToBody($html, $scriptLines)
-    {
-        $script = implode("\n", $scriptLines) . "\n";
-        if (strstr($html, '</body>')) {
-            $html = str_replace('</body>', $script . '</body>', $html);
-        } else {
-            $html = $html . $script;
-        }
-
-        return $html;
     }
 }
