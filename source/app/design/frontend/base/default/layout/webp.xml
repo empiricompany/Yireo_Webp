@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <layout>
     <default>
-        <reference name="head">
+        <reference name="before_body_end">
             <!-- <action method="addJs" ifconfig="web/webp/safe_mode"><script>webp/restoreOriginalImages.js</script></action> -->
             <block type="core/text" name="webp_polyfill" after="-">
                 <action method="setText">
