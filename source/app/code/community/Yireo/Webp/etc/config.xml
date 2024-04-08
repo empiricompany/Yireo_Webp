@@ -49,6 +49,14 @@
                 </observers>
             </core_block_abstract_to_html_after>
         </events>
+
+        <layout>
+            <updates>
+                <webp>
+                    <file>webp.xml</file>
+                </webp>
+            </updates>
+        </layout>
     </frontend>
 
     <default>
@@ -58,6 +66,7 @@
                 <cwebp_enabled>0</cwebp_enabled>
                 <cwebp_path>/usr/local/bin/cwebp</cwebp_path>
                 <gd_enabled>1</gd_enabled>
+                <safe_mode>1</safe_mode>
             </webp>
         </web>
     </default>

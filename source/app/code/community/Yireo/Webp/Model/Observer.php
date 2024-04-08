@@ -64,9 +64,9 @@ class Yireo_Webp_Model_Observer
         $transport = $observer->getEvent()->getTransport();
         $block = $observer->getEvent()->getBlock();
 
-        /* if ($this->isAllowedBlock($block) == false) {
+        if ($this->isAllowedBlock($block) == false) {
             return $this;
-        } */
+        }
 
         $html = $transport->getHtml();
 
