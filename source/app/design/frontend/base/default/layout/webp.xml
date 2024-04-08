@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<layout>
+    <default>
+        <reference name="head">
+            <!-- <action method="addJs" ifconfig="web/webp/safe_mode"><script>webp/restoreOriginalImages.js</script></action> -->
+            <block type="core/text" name="webp_polyfill" after="-">
+                <action method="setText">
+                    <text><![CDATA[
+                    <script pagespeed_no_defer>
+                        const testImg = 'data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoCAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==';
+                        const webBundleUrl = 'https://unpkg.com/webp-hero@0.0.2/dist-cjs/polyfills.js';
+                        const webPolyfillUrl = 'https://unpkg.com/webp-hero@0.0.2/dist-cjs/webp-hero.bundle.js';
+
+                        (function () {
+                            var img = new Image();
+
+                            img.onload = () => {
+                                support = !!(img.width == 2 && img.height == 1)
+                                if (!support) {
+                                    injectWebpSupport();
+
+                                } else {
+                                };
+                            };
+
+                            img.onerror = () => {
+                                injectWebpSupport();
+                            };
+
+                            img.src = testImg;
+                        })();
+
+                        function injectWebpSupport() {
+                            var bundle = document.createElement('script');
+                            var polyfill = document.createElement('script');
+
+                            bundle.onload = function () {
+                                document.head.appendChild(polyfill);
+                            };
+                            polyfill.onload = function () {
+                                var webpMachine = new webpHero.WebpMachine();
+                                webpMachine.polyfillDocument();
+                                rmSrcset();
+                            };
+
+                            bundle.src = webBundleUrl;
+                            polyfill.src = webPolyfillUrl;
+                            document.head.appendChild(bundle);
+                        };
+
+                        function rmSrcset() {
+                            img = document.getElementsByTagName('img');
+                            for (let i = 0; i < img.length; i++) {
+                                img[i].removeAttribute('srcset');
+                            };
+                            // select all <source> tags children inside <picture> and remove them
+                            source = document.querySelectorAll('picture source');
+                            for (let i = 0; i < source.length; i++) {
+                                source[i].remove();
+                            };
+                        };
+                    </script>
+                ]]></text>
+                </action>
+            </block>
+        </reference>
+    </default>
+</layout>
