@@ -88,7 +88,7 @@ class Yireo_Webp_Model_Observer
 
                     if (empty($webpUrl)) {
                         //Mage::log('cant convert '.$imageUrl.' to webp');
-                        continue;
+                        break;
                     }
 
                     // Replace the img tag in the HTML
@@ -107,7 +107,7 @@ class Yireo_Webp_Model_Observer
                     //Mage::log( $imageUrls );
                     if (preg_match_all('/[^"\'=\s]+\.(jpe?g|png)/mU', $imageUrls, $matches2) == false) {
                         //Mage::log( 'no match' );
-                        continue;
+                        break;
                     }
                     //Mage::log('--- $matches2 ---');
                     //Mage::log($matches2);
@@ -122,7 +122,7 @@ class Yireo_Webp_Model_Observer
                         $webpUrl2 = $this->convertImageUrlToWebp($imageUrl2);
                         if (empty($webpUrl2)) {
                             //Mage::log('cant convert '.$imageUrl2.' to webp');
-                            continue;
+                            break;
                         }
                         //Mage::log('\n$webpUrl = '.$webpUrl2);
 
@@ -144,7 +144,7 @@ class Yireo_Webp_Model_Observer
 
                     // if (empty($webpUrl)) {
                     //     //Mage::log('cant convert '.$imageUrl.' to webp');
-                    //     continue;
+                    //     break;
                     // }
 
                     // // Replace the img tag in the HTML
